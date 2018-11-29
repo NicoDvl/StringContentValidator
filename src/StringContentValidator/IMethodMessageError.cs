@@ -4,7 +4,11 @@ using System.Text;
 
 namespace StringContentValidator
 {
-    interface IMethodMessageError<TRow>
+    /// <summary>
+    /// Error settings from a method.
+    /// </summary>
+    /// <typeparam name="TRow">Type to validate.</typeparam>
+    internal interface IMethodMessageError<TRow>
     {
         /// <summary>
         /// Gets or sets a method to define a custom error message.

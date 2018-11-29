@@ -276,7 +276,7 @@ namespace StringContentValidator
         /// Create an error message.
         /// </summary>
         /// <param name="current">Current element.</param>
-        /// <param name="messageError">Error informations from method. <see cref="IMethodMessageError{TRow}"/></param>
+        /// <param name="messageError">Error informations from method. <see cref="IMethodMessageError{TRow}"/>.</param>
         /// <returns>Error message.</returns>
         private string MessageErrorFactory(TRow current, IMethodMessageError<TRow> messageError)
         {

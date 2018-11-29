@@ -24,7 +24,7 @@ namespace StringContentValidator.Methods
         /// <summary>
         /// Check if property is convertible to decimal.
         /// </summary>
-        /// <param name="provider">An object that supplies culture-specific parsing information. Default CurrentCulture</param>
+        /// <param name="provider">An object that supplies culture-specific parsing information. Default CurrentCulture.</param>
         public void TryParseDecimal(IFormatProvider provider = null)
         {
             if (provider == null)
