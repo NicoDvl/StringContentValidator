@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using StringContentValidator.Languages;
 using StringContentValidator.Methods;
 using StringContentValidator.Utilities;
@@ -178,6 +179,20 @@ namespace StringContentValidator
         {
             StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
             method.IsStringValues(values);
+            this.methods.Add(method);
+            return this;
+        }
+
+        /// <summary>
+        /// Check if property value match regex.
+        /// </summary>
+        /// <param name="pattern">Regex pattern.</param>
+        /// <param name="options">Regex options.</param>
+        /// <returns>Current instance.</returns>
+        public PropertyValidator<TRow> TryRegex(string pattern, RegexOptions options = RegexOptions.None)
+        {
+            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            method.TryRegex(pattern, options);
             this.methods.Add(method);
             return this;
         }

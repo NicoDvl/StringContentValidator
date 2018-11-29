@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using StringContentValidator.Languages;
 
 namespace StringContentValidator.Methods
@@ -22,7 +23,7 @@ namespace StringContentValidator.Methods
         }
 
         /// <summary>
-        /// Check if property is not null.
+        /// Check if property value is not null.
         /// </summary>
         public void IsNotNull()
         {
@@ -31,7 +32,7 @@ namespace StringContentValidator.Methods
         }
 
         /// <summary>
-        /// Check if property is not null or empty.
+        /// Check if property value is not null or empty.
         /// </summary>
         public void IsNotNullOrEmpty()
         {
@@ -40,7 +41,7 @@ namespace StringContentValidator.Methods
         }
 
         /// <summary>
-        /// Check if property has required length.
+        /// Check if property value has required length.
         /// </summary>
         /// <param name="min">min length.</param>
         /// <param name="max">maw length.</param>
@@ -65,12 +66,27 @@ namespace StringContentValidator.Methods
         }
 
         /// <summary>
-        /// Check if property is in list values.
+        /// Check if property value is in list of values.
         /// </summary>
         /// <param name="values">List of values.</param>
         public void IsStringValues(string[] values)
         {
             this.ToCheck = (current) => values.Contains(this.Value(current));
+            this.ErrorMessage = (current) => string.Format(Translation.IsStringValuesError, this.Value(current));
+        }
+
+        /// <summary>
+        /// Check if property value match regex.
+        /// </summary>
+        /// <param name="pattern">Regex pattern.</param>
+        /// <param name="options">Regex options.</param>
+        public void TryRegex(string pattern, RegexOptions options = RegexOptions.None)
+        {
+            this.ToCheck = (current) =>
+            {
+                Regex regex = new Regex(pattern, options);
+                return regex.IsMatch(this.Value(current));
+            };
             this.ErrorMessage = (current) => string.Format(Translation.IsStringValuesError, this.Value(current));
         }
     }

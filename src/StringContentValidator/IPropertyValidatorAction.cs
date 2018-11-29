@@ -11,25 +11,25 @@ namespace StringContentValidator
     public interface IPropertyValidatorAction<TRow>
     {
         /// <summary>
-        /// Check if property is not null.
+        /// Check if property value is not null.
         /// </summary>
         /// <returns>Current instance.</returns>
         PropertyValidator<TRow> IsNotNull();
 
         /// <summary>
-        /// Check if property is not null or empty.
+        /// Check if property value is not null or empty.
         /// </summary>
         /// <returns>Current instance.</returns>
         PropertyValidator<TRow> IsNotNullOrEmpty();
 
         /// <summary>
-        /// Check if property is convertible to decimal.
+        /// Check if property value is convertible to decimal.
         /// </summary>
         /// <returns>Current instance.</returns>
         PropertyValidator<TRow> TryParseDecimal();
 
         /// <summary>
-        /// Check if property is in list values.
+        /// Check if property value is in list values.
         /// </summary>
         /// <param name="values">List of values.</param>
         /// <returns>Current instance.</returns>

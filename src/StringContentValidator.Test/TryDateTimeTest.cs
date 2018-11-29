@@ -7,7 +7,7 @@ namespace StringContentValidator.Test
     public class TryDateTimeTest
     {
         [Fact]
-        public void IsDateTimeTest_should_fail()
+        public void TryDateTime_should_fail()
         {
             PropertyValidator<Row> validator = PropertyValidator<Row>.For(x => x.DateTimeValue);
             validator
@@ -17,7 +17,7 @@ namespace StringContentValidator.Test
         }
 
         [Fact]
-        public void IsDateTimeTest_should_pass()
+        public void TryDateTime_should_pass()
         {
             PropertyValidator<Row> validator = PropertyValidator<Row>.For(x => x.DateTimeValue);
             validator
