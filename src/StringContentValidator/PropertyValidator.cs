@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using StringContentValidator.Languages;
+using StringContentValidator.Methods;
 using StringContentValidator.Utilities;
 
 namespace StringContentValidator
@@ -101,24 +102,7 @@ namespace StringContentValidator
         public PropertyValidator<TRow> OverrideErrorMessage(Func<TRow, string> msgErrorFunc, bool preserveErrorHeader = false)
         {
             this.preserveErrorHeader = preserveErrorHeader;
-            this.methods.Last().OverrideErrorMessage = (current, extra) => msgErrorFunc(current);
-            return this;
-        }
-
-        /// <summary>
-        /// Allow overriding default error message.
-        /// </summary>
-        /// <param name="msgErrorFunc">
-        /// Custom error message as a Func.
-        /// TRow as the current row
-        /// dyanmic as the extra object instance.
-        /// </param>
-        /// <param name="preserveErrorHeader">Preserve line, field name header in error message.</param>
-        /// <returns>Current instance.</returns>
-        public PropertyValidator<TRow> OverrideErrorMessage(Func<TRow, dynamic, string> msgErrorFunc, bool preserveErrorHeader = false)
-        {
-            this.preserveErrorHeader = preserveErrorHeader;
-            this.methods.Last().OverrideErrorMessage = (current, extra) => msgErrorFunc(current, extra);
+            this.methods.Last().OverrideErrorMessage = (current) => msgErrorFunc(current);
             return this;
         }
 
@@ -128,9 +112,8 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> IsNotNull()
         {
-            MethodValidator<TRow> method = new MethodValidator<TRow>();
-            method.ToCheck = (current) => this.getter(current) != null;
-            method.ErrorMessage = (current) => this.MessageErrorFactory(current, Translation.IsNotNullError, method.OverrideErrorMessage);
+            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            method.IsNotNull();
             this.methods.Add(method);
             return this;
         }
@@ -141,9 +124,8 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> IsNotNullOrEmpty()
         {
-            MethodValidator<TRow> method = new MethodValidator<TRow>();
-            method.ToCheck = (current) => !string.IsNullOrEmpty(this.getter(current));
-            method.ErrorMessage = (current) => this.MessageErrorFactory(current, Translation.IsNotNullOrEmptyError, method.OverrideErrorMessage);
+            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            method.IsNotNullOrEmpty();
             this.methods.Add(method);
             return this;
         }
@@ -154,14 +136,8 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> TryParseDecimal()
         {
-            MethodValidator<TRow> method = new MethodValidator<TRow>();
-            method.ToCheck = (current) =>
-            {
-                decimal d;
-                bool ok = decimal.TryParse(this.getter(current), NumberStyles.AllowDecimalPoint, CultureInfo.CurrentCulture, out d);
-                return ok;
-            };
-            method.ErrorMessage = (current) => this.MessageErrorFactory(current, string.Format(Translation.IsDecimalError, this.getter(current)), method.OverrideErrorMessage);
+            DecimalMethods<TRow> method = new DecimalMethods<TRow>((x) => this.getter(x));
+            method.TryParseDecimal();
             this.methods.Add(method);
             return this;
         }
@@ -173,19 +149,8 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> TryParseDateTime(string format)
         {
-            if (string.IsNullOrEmpty(format))
-            {
-                throw new ArgumentNullException(nameof(format), "format can't be null or empty.");
-            }
-
-            MethodValidator<TRow> method = new MethodValidator<TRow>();
-            method.ToCheck = (current) =>
-            {
-                DateTime d;
-                bool ok = DateTime.TryParseExact(this.getter(current), format, CultureInfo.CurrentCulture, DateTimeStyles.None, out d);
-                return ok;
-            };
-            method.ErrorMessage = (current) => this.MessageErrorFactory(current, string.Format(Translation.IsDateTimeError, this.getter(current), format), method.OverrideErrorMessage);
+            DateTimeMethods<TRow> method = new DateTimeMethods<TRow>((x) => this.getter(x));
+            method.TryParseDateTime(format);
             this.methods.Add(method);
             return this;
         }
@@ -198,23 +163,8 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> HasLength(int min, int max)
         {
-            if (min < 0 || max < 0)
-            {
-                throw new ArgumentOutOfRangeException("Min Max", "Min and Max can't be negative.");
-            }
-
-            if (max < min)
-            {
-                throw new ArgumentOutOfRangeException("Min Max", "Max can't be smaller than min.");
-            }
-
-            MethodValidator<TRow> method = new MethodValidator<TRow>();
-            method.ToCheck = (current) =>
-            {
-                int length = this.getter(current).Length;
-                return length >= min || length <= max;
-            };
-            method.ErrorMessage = (current) => this.MessageErrorFactory(current, string.Format(Translation.HasLengthError, min, max), method.OverrideErrorMessage);
+            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            method.HasLength(min, max);
             this.methods.Add(method);
             return this;
         }
@@ -226,9 +176,8 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> IsStringValues(string[] values)
         {
-            MethodValidator<TRow> method = new MethodValidator<TRow>();
-            method.ToCheck = (current) => values.Contains(this.getter(current));
-            method.ErrorMessage = (current) => this.MessageErrorFactory(current, string.Format(Translation.IsStringValuesError, this.getter(current)), method.OverrideErrorMessage);
+            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            method.IsStringValues(values);
             this.methods.Add(method);
             return this;
         }
@@ -270,10 +219,10 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> If(Func<TRow, bool> predicate, Func<TRow, bool> tocheck)
         {
-            MethodValidator<TRow> method = new MethodValidator<TRow>();
+            MethodValidator<TRow> method = new MethodValidator<TRow>((x) => this.getter(x));
             method.Condition = (current) => predicate(current);
             method.ToCheck = (current) => tocheck(current);
-            method.ErrorMessage = (current) => this.MessageErrorFactory(current, Translation.IfError, method.OverrideErrorMessage);
+            method.ErrorMessage = (current) => Translation.IfError;
             this.methods.Add(method);
             return this;
         }
@@ -286,10 +235,10 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> If(Func<TRow, bool> predicate, Func<TRow, dynamic, bool> tocheck)
         {
-            MethodValidator<TRow> method = new MethodValidator<TRow>();
+            MethodValidator<TRow> method = new MethodValidator<TRow>((x) => this.getter(x));
             method.Condition = (current) => predicate(current);
             method.ToCheck = (current) => tocheck(current, this.extraObject);
-            method.ErrorMessage = (current) => this.MessageErrorFactory(current, Translation.IfError, method.OverrideErrorMessage);
+            method.ErrorMessage = (current) => Translation.IfError;
             this.methods.Add(method);
             return this;
         }
@@ -315,7 +264,7 @@ namespace StringContentValidator
                     bool ok = method.ToCheck(row);
                     if (!ok)
                     {
-                        this.ValidationErrors.Add(ValidationError.Failure(this.fieldName, method.ErrorMessage(row)));
+                        this.ValidationErrors.Add(ValidationError.Failure(this.fieldName, this.MessageErrorFactory(row, method)));
 
                         break; // by default breaks if error
                     }
@@ -327,10 +276,9 @@ namespace StringContentValidator
         /// Create an error message.
         /// </summary>
         /// <param name="current">Current element.</param>
-        /// <param name="defaultMsg">Default error message.</param>
-        /// <param name="msgOverrideFunc">Func to customize error message.</param>
+        /// <param name="messageError">Error informations from method. <see cref="IMethodMessageError{TRow}"/></param>
         /// <returns>Error message.</returns>
-        private string MessageErrorFactory(TRow current, string defaultMsg, Func<TRow, dynamic, string> msgOverrideFunc)
+        private string MessageErrorFactory(TRow current, IMethodMessageError<TRow> messageError)
         {
             StringBuilder errorMsg = new StringBuilder();
 
@@ -346,13 +294,13 @@ namespace StringContentValidator
             }
 
             // default or override msg
-            if (msgOverrideFunc == null)
+            if (messageError.OverrideErrorMessage == null)
             {
-                errorMsg.Append(defaultMsg);
+                errorMsg.Append(messageError.ErrorMessage(current));
             }
             else
             {
-                errorMsg.Append(msgOverrideFunc(current, this.extraObject));
+                errorMsg.Append(messageError.OverrideErrorMessage(current));
             }
 
             return errorMsg.ToString();
