@@ -1,10 +1,22 @@
 # StringContentValidation
 
-A library for fluent validation of content from text file. Ensures that the text content read from csv files, excel files ... is valid before loading model objects. Provides maximum feedback for correcting input files.
+A library for fluent validation of content from text file. Ensures that the text content read from csv files, excel files is valid. Provides maximum feedbacks for correcting input files and display errors to the end users.
 
-## Validation for a row
+## Get Started
 
-Validation can be done with a class with string properties that represent the columns of the files
+StringContentValidation can be installed using the Nuget package manager or the dotnet CLI.
+
+Install-Package StringContentValidator
+
+## Validation use case
+
+You want to validate the text content from a csv or excel or... simple eg :
+
+| Key     | DecimalValue | DateTimeValue |
+| ------- | ------------ | ------------- |
+| thiskey | 123,45       | 20181201      |
+
+Define a class with string properties that represent the columns of the files and validate with :
 
 ```cs
 public class Row
@@ -29,7 +41,7 @@ ClassValidator<Row> validator = ClassValidator<Row>
     });
 ```
 
-If you do not want to define a class, validation with a dynamic object is possible
+If you do not want to define a class, you can use a dynamic object :
 
 ```cs
 
@@ -46,6 +58,8 @@ ClassValidator<dynamic> validator = ClassValidator<dynamic>
     .Validate(dynamicRow);
 
 ```
+
+Obviously, in a real scenario the rows are loaded from a stream or an additional library of your choice.
 
 ## Validation for a collection
 
