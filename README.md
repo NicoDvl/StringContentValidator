@@ -6,7 +6,9 @@ A library for fluent validation of content from text file. Ensures that the text
 
 StringContentValidation can be installed using the Nuget package manager or the dotnet CLI.
 
+```
 Install-Package StringContentValidator
+```
 
 ## Validation use case
 
