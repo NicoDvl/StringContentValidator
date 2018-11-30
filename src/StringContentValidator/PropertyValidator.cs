@@ -18,7 +18,7 @@ namespace StringContentValidator
     /// <typeparam name="TRow">Type for this validator.</typeparam>
     public class PropertyValidator<TRow> : IPropertyValidatorAction<TRow>
     {
-        private readonly Collection<MethodValidator<TRow>> methods = new Collection<MethodValidator<TRow>>();
+        private readonly Collection<ValidationRule<TRow>> methods = new Collection<ValidationRule<TRow>>();
         private int? rowIndex;
         private string fieldName;
         private Func<TRow, string> getter;
@@ -34,6 +34,11 @@ namespace StringContentValidator
         /// Gets the list of validation errors.
         /// </summary>
         public List<ValidationError> ValidationErrors { get; private set; } = new List<ValidationError>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the validation of the property must stop on first error.
+        /// </summary>
+        public bool StopOnFirstFailure { get; set; } = true;
 
         /// <summary>
         /// Gets a value indicating whether the validation is successfull.
@@ -220,7 +225,7 @@ namespace StringContentValidator
             // add condition on new methods
             foreach (var item in newMethods)
             {
-                item.Condition = (current) => ifFunc(current);
+                item.PreCondition = (current) => ifFunc(current);
             }
 
             return this;
@@ -234,9 +239,9 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> If(Func<TRow, bool> predicate, Func<TRow, bool> tocheck)
         {
-            MethodValidator<TRow> method = new MethodValidator<TRow>((x) => this.getter(x));
-            method.Condition = (current) => predicate(current);
-            method.ToCheck = (current) => tocheck(current);
+            ValidationRule<TRow> method = new ValidationRule<TRow>((x) => this.getter(x));
+            method.PreCondition = (current) => predicate(current);
+            method.IsValid = (current) => tocheck(current);
             method.ErrorMessage = (current) => Translation.IfError;
             this.methods.Add(method);
             return this;
@@ -250,9 +255,9 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> If(Func<TRow, bool> predicate, Func<TRow, dynamic, bool> tocheck)
         {
-            MethodValidator<TRow> method = new MethodValidator<TRow>((x) => this.getter(x));
-            method.Condition = (current) => predicate(current);
-            method.ToCheck = (current) => tocheck(current, this.extraObject);
+            ValidationRule<TRow> method = new ValidationRule<TRow>((x) => this.getter(x));
+            method.PreCondition = (current) => predicate(current);
+            method.IsValid = (current) => tocheck(current, this.extraObject);
             method.ErrorMessage = (current) => Translation.IfError;
             this.methods.Add(method);
             return this;
@@ -268,20 +273,25 @@ namespace StringContentValidator
 
             foreach (var method in this.methods)
             {
-                bool condition = true;
-                if (method.Condition != null)
+                bool result = true;
+                if (method.PreCondition != null)
                 {
-                    condition = method.Condition(row);
+                    // used by condition like .If(x => x.Type == "P", action:
+                    result = method.PreCondition(row);
                 }
 
-                if (condition)
+                if (result)
                 {
-                    bool ok = method.ToCheck(row);
+                    bool ok = method.IsValid(row);
                     if (!ok)
                     {
                         this.ValidationErrors.Add(ValidationError.Failure(this.fieldName, this.MessageErrorFactory(row, method)));
 
-                        break; // by default breaks if error
+                        // TODO at this stage always break on first error
+                        // if (this.StopOnFirstFailure)
+                        // {
+                        break;
+                        // }
                     }
                 }
             }
@@ -291,9 +301,9 @@ namespace StringContentValidator
         /// Create an error message.
         /// </summary>
         /// <param name="current">Current element.</param>
-        /// <param name="messageError">Error informations from method. <see cref="IMethodMessageError{TRow}"/>.</param>
+        /// <param name="messageError">Error informations from method. <see cref="IValidationRuleError{TRow}"/>.</param>
         /// <returns>Error message.</returns>
-        private string MessageErrorFactory(TRow current, IMethodMessageError<TRow> messageError)
+        private string MessageErrorFactory(TRow current, IValidationRuleError<TRow> messageError)
         {
             StringBuilder errorMsg = new StringBuilder();
 

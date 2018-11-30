@@ -10,7 +10,7 @@ namespace StringContentValidator.Methods
     /// Encapsulate method to validate conversion to decimal type.
     /// </summary>
     /// <typeparam name="TRow">type to validate.</typeparam>
-    public class DecimalMethods<TRow> : MethodValidator<TRow>
+    public class DecimalMethods<TRow> : ValidationRule<TRow>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DecimalMethods{TRow}"/> class.
@@ -32,7 +32,7 @@ namespace StringContentValidator.Methods
                 provider = CultureInfo.CurrentCulture;
             }
 
-            this.ToCheck = (current) =>
+            this.IsValid = (current) =>
             {
                 decimal d;
                 bool ok = decimal.TryParse(this.Value(current), NumberStyles.AllowDecimalPoint, provider, out d);

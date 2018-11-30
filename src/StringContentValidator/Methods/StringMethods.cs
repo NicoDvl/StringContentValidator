@@ -11,7 +11,7 @@ namespace StringContentValidator.Methods
     /// Encapsulate method to validate string.
     /// </summary>
     /// <typeparam name="TRow">type to validate.</typeparam>
-    public class StringMethods<TRow> : MethodValidator<TRow>
+    public class StringMethods<TRow> : ValidationRule<TRow>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StringMethods{TRow}"/> class.
@@ -27,7 +27,7 @@ namespace StringContentValidator.Methods
         /// </summary>
         public void IsNotNull()
         {
-            this.ToCheck = (current) => this.Value(current) != null;
+            this.IsValid = (current) => this.Value(current) != null;
             this.ErrorMessage = (current) => Translation.IsNotNullError;
         }
 
@@ -36,7 +36,7 @@ namespace StringContentValidator.Methods
         /// </summary>
         public void IsNotNullOrEmpty()
         {
-            this.ToCheck = (current) => !string.IsNullOrEmpty(this.Value(current));
+            this.IsValid = (current) => !string.IsNullOrEmpty(this.Value(current));
             this.ErrorMessage = (current) => Translation.IsNotNullOrEmptyError;
         }
 
@@ -57,7 +57,7 @@ namespace StringContentValidator.Methods
                 throw new ArgumentOutOfRangeException("Min Max", "Max can't be smaller than min.");
             }
 
-            this.ToCheck = (current) =>
+            this.IsValid = (current) =>
             {
                 int length = this.Value(current).Length;
                 return length >= min || length <= max;
@@ -71,7 +71,7 @@ namespace StringContentValidator.Methods
         /// <param name="values">List of values.</param>
         public void IsStringValues(string[] values)
         {
-            this.ToCheck = (current) => values.Contains(this.Value(current));
+            this.IsValid = (current) => values.Contains(this.Value(current));
             this.ErrorMessage = (current) => string.Format(Translation.IsStringValuesError, this.Value(current));
         }
 
@@ -82,7 +82,7 @@ namespace StringContentValidator.Methods
         /// <param name="options">Regex options.</param>
         public void TryRegex(string pattern, RegexOptions options = RegexOptions.None)
         {
-            this.ToCheck = (current) =>
+            this.IsValid = (current) =>
             {
                 Regex regex = new Regex(pattern, options);
                 return regex.IsMatch(this.Value(current));

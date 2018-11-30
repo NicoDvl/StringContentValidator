@@ -5,16 +5,16 @@ using System.Text;
 namespace StringContentValidator
 {
     /// <summary>
-    /// Define a method to validate a property.
+    /// Define a rule to validate a property.
     /// </summary>
     /// <typeparam name="TRow">Type to validate.</typeparam>
-    public class MethodValidator<TRow> : IMethodMessageError<TRow>
+    public class ValidationRule<TRow> : IValidationRuleError<TRow>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MethodValidator{TRow}"/> class.
+        /// Initializes a new instance of the <see cref="ValidationRule{TRow}"/> class.
         /// </summary>
         /// <param name="value">delegate to get the value to validate.</param>
-        public MethodValidator(Func<TRow, string> value)
+        public ValidationRule(Func<TRow, string> value)
         {
             this.Value = value;
         }
@@ -25,14 +25,15 @@ namespace StringContentValidator
         public Func<TRow, string> Value { get; private set; }
 
         /// <summary>
-        /// Gets or sets a condition prior to check if property value is valid.
+        /// Gets or sets a pre condition prior to check if property value is valid.
+        /// Usefull to keep the precondition defined with a precondition like : If(x => x.Type == "P", ... ).
         /// </summary>
-        public Func<TRow, bool> Condition { get; set; }
+        public Func<TRow, bool> PreCondition { get; set; }
 
         /// <summary>
         /// Gets or sets a method to check if property value is valid.
         /// </summary>
-        public Func<TRow, bool> ToCheck { get; set; }
+        public Func<TRow, bool> IsValid { get; set; }
 
         /// <summary>
         /// Gets or sets a method to define a custom error message.

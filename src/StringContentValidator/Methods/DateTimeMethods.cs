@@ -10,7 +10,7 @@ namespace StringContentValidator.Methods
     /// Encapsulate method to validate conversion to DateTime type.
     /// </summary>
     /// <typeparam name="TRow">type to validate.</typeparam>
-    public class DateTimeMethods<TRow> : MethodValidator<TRow>
+    public class DateTimeMethods<TRow> : ValidationRule<TRow>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DateTimeMethods{TRow}"/> class.
@@ -32,7 +32,7 @@ namespace StringContentValidator.Methods
                 throw new ArgumentNullException(nameof(format), "format can't be null or empty.");
             }
 
-            this.ToCheck = (current) =>
+            this.IsValid = (current) =>
             {
                 DateTime d;
                 bool ok = DateTime.TryParseExact(this.Value(current), format, CultureInfo.CurrentCulture, DateTimeStyles.None, out d);

@@ -5,10 +5,10 @@ using System.Text;
 namespace StringContentValidator
 {
     /// <summary>
-    /// Error settings from a method.
+    /// Error settings from a validation rule.
     /// </summary>
     /// <typeparam name="TRow">Type to validate.</typeparam>
-    internal interface IMethodMessageError<TRow>
+    internal interface IValidationRuleError<TRow>
     {
         /// <summary>
         /// Gets or sets a method to define a custom error message.
