@@ -2,6 +2,7 @@ using StringContentValidator.Test.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
 using Xunit;
 
 namespace StringContentValidator.Test
@@ -13,8 +14,8 @@ namespace StringContentValidator.Test
         {
             ClassValidator<Row> validator = ClassValidator<Row>
                 .Init()
-                .AddProperty(PropertyValidator<Row>.For(x => x.Key).IsNotNull())
-                .AddProperty(PropertyValidator<Row>.For(x => x.DateTimeValue).IsNotNull()) // error
+                .For(x => x.Key, p => p.IsNotNull())
+                .For(x => x.DateTimeValue, p => p.IsNotNull()) // error
                 .Validate(new Row() { Key = "mykey", DateTimeValue = null });
 
             Assert.Single(validator.ValidationErrors);
@@ -23,16 +24,15 @@ namespace StringContentValidator.Test
         [Fact]
         public void ClassValidator_class_sample()
         {
-            ClassValidator<Row> validator = ClassValidator<Row>
-                .Init()
-                .AddProperty(PropertyValidator<Row>.For(x => x.Key).IsNotNull().HasLength(5,10))
-                .AddProperty(PropertyValidator<Row>.For(x => x.DateTimeValue).IsNotNull().TryParseDateTime("yyyyMMdd"))
-                .AddProperty(PropertyValidator<Row>.For(x => x.DecimalValue).IsNotNull().TryParseDecimal())
+            ClassValidator<Row> validator = ClassValidator<Row>.Init()
+                .For(x => x.Key, p => p.IsNotNull().HasLength(5, 10))
+                .For(x => x.DateTimeValue, p => p.IsNotNull().TryParseDateTime("yyyyMMdd"))
+                .For(x => x.DecimalValue, p => p.IsNotNull().TryParseDecimal(CultureInfo.InvariantCulture))
                 .Validate(new Row()
                 {
                     Key = "thiskey",
                     DateTimeValue = "20181201",
-                    DecimalValue = "123,45"
+                    DecimalValue = "123.45"
                 });
 
             Assert.Empty(validator.ValidationErrors);
@@ -41,15 +41,15 @@ namespace StringContentValidator.Test
         [Fact]
         public void ClassValidator_dynamic_oneerror()
         {
-            dynamic dynamicRow = new ExpandoObject();
-            dynamicRow.Key = "mykey";
-            dynamicRow.DateTimeValue = null;
+            dynamic row = new ExpandoObject();
+            row.Key = "mykey";
+            row.DateTimeValue = null;
 
-            ClassValidator<dynamic> validator = ClassValidator<dynamic>
+            ClassDynamicValidator validator = ClassDynamicValidator
                 .Init()
-                .AddProperty(PropertyValidator<dynamic>.ForDynamic(x => x.Key, "Key").IsNotNull())
-                .AddProperty(PropertyValidator<dynamic>.ForDynamic(x => x.DateTimeValue, "DateTimeValue").IsNotNull()) // error
-                .Validate(dynamicRow);
+                .For(x => x.Key, "Key", p => p.IsNotNull())
+                .For(x => x.DateTimeValue, "DateTimeValue", p => p.IsNotNull()) // error
+                .Validate(row);
 
             Assert.Single(validator.ValidationErrors);
         }
@@ -57,17 +57,17 @@ namespace StringContentValidator.Test
         [Fact]
         public void ClassValidator_dynamic_sample()
         {
-            dynamic dynamicRow = new ExpandoObject();
-            dynamicRow.Key = "mykey";
-            dynamicRow.DateTimeValue = "20181201";
-            dynamicRow.DecimalValue = "123,45";
+            dynamic row = new ExpandoObject();
+            row.Key = "mykey";
+            row.DateTimeValue = "20181201";
+            row.DecimalValue = "123.45";
 
-            ClassValidator<dynamic> validator = ClassValidator<dynamic>
+            ClassDynamicValidator validator = ClassDynamicValidator
                 .Init()
-                .AddProperty(PropertyValidator<dynamic>.ForDynamic(x => x.Key, "Key").IsNotNull().HasLength(5, 10))
-                .AddProperty(PropertyValidator<dynamic>.ForDynamic(x => x.DateTimeValue, "DateTimeValue").TryParseDateTime("yyyyMMdd"))
-                .AddProperty(PropertyValidator<dynamic>.ForDynamic(x => x.DecimalValue, "DecimalValue").IsNotNull().TryParseDecimal())
-                .Validate(dynamicRow);
+                .For(x => x.Key, "Key", p => p.IsNotNull().HasLength(5, 10))
+                .For(x => x.DateTimeValue, "DateTimeValue", p => p.TryParseDateTime("yyyyMMdd"))
+                .For(x => x.DecimalValue, "DecimalValue", p => p.IsNotNull().TryParseDecimal(CultureInfo.InvariantCulture))
+                .Validate(row);
 
             Assert.Empty(validator.ValidationErrors);
         }
@@ -96,8 +96,8 @@ namespace StringContentValidator.Test
         {
             ClassValidator<Row> validator = ClassValidator<Row>
                 .Init(new ClassValidatorOption() { ShowRowIndex = true }) // show index in error list
-                .AddProperty(PropertyValidator<Row>.For(x => x.Key).IsNotNull())
-                .AddProperty(PropertyValidator<Row>.For(x => x.DateTimeValue).IsNotNull().TryParseDateTime("yyyyMMdd"))
+                .For(x => x.Key, p => p.IsNotNull())
+                .For(x => x.DateTimeValue, p => p.IsNotNull().TryParseDateTime("yyyyMMdd"))
                 .ValidateList(
                     new List<Row>(){
                         new Row() { Key = "mykey", DateTimeValue = "20181201" },

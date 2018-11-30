@@ -30,34 +30,34 @@ public class Row
 
 // ...
 
-ClassValidator<Row> validator = ClassValidator<Row>
-    .Init()
-    .AddProperty(PropertyValidator<Row>.For(x => x.Key).IsNotNull().HasLength(5,10))
-    .AddProperty(PropertyValidator<Row>.For(x => x.DateTimeValue).IsNotNull().IsDateTime("yyyyMMdd"))
-    .AddProperty(PropertyValidator<Row>.For(x => x.DecimalValue).IsNotNull().IsDecimal())
+ClassValidator<Row> validator = ClassValidator<Row>.Init()
+    .For(x => x.Key, p => p.IsNotNull().HasLength(5, 10))
+    .For(x => x.DateTimeValue, p => p.IsNotNull().TryParseDateTime("yyyyMMdd"))
+    .For(x => x.DecimalValue, p => p.IsNotNull().TryParseDecimal(CultureInfo.InvariantCulture))
     .Validate(new Row()
     {
         Key = "thiskey",
         DateTimeValue = "20181201",
-        DecimalValue = "123,45"
+        DecimalValue = "123.45"
     });
 ```
 
 If you do not want to define a class, you can use a dynamic object :
 
 ```cs
+dynamic row = new ExpandoObject();
+row.Key = "mykey";
+row.DateTimeValue = "20181201";
+row.DecimalValue = "123.45";
 
-dynamic dynamicRow = new ExpandoObject();
-dynamicRow.Key = "mykey";
-dynamicRow.DateTimeValue = "20181201";
-dynamicRow.DecimalValue = "123,45";
-
-ClassValidator<dynamic> validator = ClassValidator<dynamic>
+ClassDynamicValidator validator = ClassDynamicValidator
     .Init()
-    .AddProperty(PropertyValidator<dynamic>.ForDynamic(x => x.Key, "Key").IsNotNull().HasLength(5, 10))
-    .AddProperty(PropertyValidator<dynamic>.ForDynamic(x => x.DateTimeValue, "DateTimeValue").IsDateTime("yyyyMMdd"))
-    .AddProperty(PropertyValidator<dynamic>.ForDynamic(x => x.DecimalValue, "DecimalValue").IsNotNull().IsDecimal())
-    .Validate(dynamicRow);
+    .For(x => x.Key, "Key", p => p.IsNotNull().HasLength(5, 10))
+    .For(x => x.DateTimeValue, "DateTimeValue", p => p.TryParseDateTime("yyyyMMdd"))
+    .For(x => x.DecimalValue, "DecimalValue", p => p.IsNotNull().TryParseDecimal(CultureInfo.InvariantCulture))
+    .Validate(row);
+
+Assert.Empty(validator.ValidationErrors);
 
 ```
 
@@ -71,8 +71,8 @@ Validation can be done for a collection of rows
 
 ClassValidator<Row> validator = ClassValidator<Row>
     .Init(new ClassValidatorOption() { ShowRowIndex = true }) // show index in error list
-    .AddProperty(PropertyValidator<Row>.For(x => x.Key).IsNotNull())
-    .AddProperty(PropertyValidator<Row>.For(x => x.DateTimeValue).IsNotNull().IsDateTime("yyyyMMdd"))
+    .For(x => x.Key, p => p.IsNotNull())
+    .For(x => x.DateTimeValue, p => p.IsNotNull().TryParseDateTime("yyyyMMdd"))
     .ValidateList(
         new List<Row>(){
             new Row() { Key = "mykey", DateTimeValue = "20181201" },

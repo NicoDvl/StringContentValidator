@@ -23,10 +23,18 @@ namespace StringContentValidator
         PropertyValidator<TRow> IsNotNullOrEmpty();
 
         /// <summary>
-        /// Check if property value is convertible to decimal.
+        /// Check if property is convertible to decimal.
         /// </summary>
+        /// <param name="provider">An object that supplies culture-specific parsing information. Default CurrentCulture.</param>
         /// <returns>Current instance.</returns>
-        PropertyValidator<TRow> TryParseDecimal();
+        PropertyValidator<TRow> TryParseDecimal(IFormatProvider provider = null);
+
+        /// <summary>
+        /// Check if property is convertible to DateTime.
+        /// </summary>
+        /// <param name="format">specified format.</param>
+        /// <returns>Current instance.</returns>
+        PropertyValidator<TRow> TryParseDateTime(string format);
 
         /// <summary>
         /// Check if property value is in list values.

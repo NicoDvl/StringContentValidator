@@ -18,7 +18,7 @@ namespace StringContentValidator
     /// <typeparam name="TRow">Type for this validator.</typeparam>
     public class PropertyValidator<TRow> : IPropertyValidatorAction<TRow>
     {
-        private readonly Collection<ValidationRule<TRow>> methods = new Collection<ValidationRule<TRow>>();
+        private readonly Collection<ValidationRule<TRow>> validationRules = new Collection<ValidationRule<TRow>>();
         private int? rowIndex;
         private string fieldName;
         private Func<TRow, string> getter;
@@ -51,7 +51,7 @@ namespace StringContentValidator
         /// <summary>
         /// Creates a property validator for the given property.
         /// </summary>
-        /// <param name="getterExpression">The targeted property.</param>
+        /// <param name="getterExpression">Expression for the targeted property.</param>
         /// <param name="overrideFieldName">To override field Name. By default uses the name of property.</param>
         /// <returns>A property validator.</returns>
         public static PropertyValidator<TRow> For(Expression<Func<TRow, string>> getterExpression, string overrideFieldName = null)
@@ -108,7 +108,7 @@ namespace StringContentValidator
         public PropertyValidator<TRow> OverrideErrorMessage(Func<TRow, string> msgErrorFunc, bool preserveErrorHeader = false)
         {
             this.preserveErrorHeader = preserveErrorHeader;
-            this.methods.Last().OverrideErrorMessage = (current) => msgErrorFunc(current);
+            this.validationRules.Last().OverrideErrorMessage = (current) => msgErrorFunc(current);
             return this;
         }
 
@@ -120,7 +120,7 @@ namespace StringContentValidator
         {
             StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
             method.IsNotNull();
-            this.methods.Add(method);
+            this.validationRules.Add(method);
             return this;
         }
 
@@ -132,19 +132,20 @@ namespace StringContentValidator
         {
             StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
             method.IsNotNullOrEmpty();
-            this.methods.Add(method);
+            this.validationRules.Add(method);
             return this;
         }
 
         /// <summary>
         /// Check if property is convertible to decimal.
         /// </summary>
+        /// <param name="provider">An object that supplies culture-specific parsing information. Default CurrentCulture.</param>
         /// <returns>Current instance.</returns>
-        public PropertyValidator<TRow> TryParseDecimal()
+        public PropertyValidator<TRow> TryParseDecimal(IFormatProvider provider = null)
         {
             DecimalMethods<TRow> method = new DecimalMethods<TRow>((x) => this.getter(x));
-            method.TryParseDecimal();
-            this.methods.Add(method);
+            method.TryParseDecimal(provider);
+            this.validationRules.Add(method);
             return this;
         }
 
@@ -157,7 +158,7 @@ namespace StringContentValidator
         {
             DateTimeMethods<TRow> method = new DateTimeMethods<TRow>((x) => this.getter(x));
             method.TryParseDateTime(format);
-            this.methods.Add(method);
+            this.validationRules.Add(method);
             return this;
         }
 
@@ -171,7 +172,7 @@ namespace StringContentValidator
         {
             StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
             method.HasLength(min, max);
-            this.methods.Add(method);
+            this.validationRules.Add(method);
             return this;
         }
 
@@ -184,7 +185,7 @@ namespace StringContentValidator
         {
             StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
             method.IsStringValues(values);
-            this.methods.Add(method);
+            this.validationRules.Add(method);
             return this;
         }
 
@@ -198,7 +199,7 @@ namespace StringContentValidator
         {
             StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
             method.TryRegex(pattern, options);
-            this.methods.Add(method);
+            this.validationRules.Add(method);
             return this;
         }
 
@@ -206,26 +207,23 @@ namespace StringContentValidator
         /// Add a condition on a validation action of <see cref="IPropertyValidatorAction"/>.
         /// </summary>
         /// <param name="ifFunc">Condition as a predicate.</param>
-        /// <param name="action">
-        /// Validation action from <see cref="IPropertyValidatorAction{TRow}"/> interface.
-        /// Action may add 1 to N methods.
-        /// </param>
+        /// <param name="action">Delegate to add validation rules. Action may N validation rules.</param>
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> If(Func<TRow, bool> ifFunc, Action<IPropertyValidatorAction<TRow>> action)
         {
             // track method count before and after to link condition on all new methods.
-            var before = this.methods.Count;
+            var before = this.validationRules.Count;
             action(this);
-            var after = this.methods.Count;
+            var after = this.validationRules.Count;
             var nbAdded = after - before;
 
             // take last N methods
-            var newMethods = this.methods.Skip(Math.Max(0, after - nbAdded));
+            var newValidationRules = this.validationRules.Skip(Math.Max(0, after - nbAdded));
 
             // add condition on new methods
-            foreach (var item in newMethods)
+            foreach (var rule in newValidationRules)
             {
-                item.PreCondition = (current) => ifFunc(current);
+                rule.PreCondition = (current) => ifFunc(current);
             }
 
             return this;
@@ -234,16 +232,16 @@ namespace StringContentValidator
         /// <summary>
         /// Add a condition on a custom validation action.
         /// </summary>
-        /// <param name="predicate">Condition as a predicate.</param>
-        /// <param name="tocheck">tocheck if condition is ok. TRow as the current row.</param>
+        /// <param name="predicate">Pre condition as a predicate.</param>
+        /// <param name="isValid">Delegate to validate the current row.</param>
         /// <returns>Current instance.</returns>
-        public PropertyValidator<TRow> If(Func<TRow, bool> predicate, Func<TRow, bool> tocheck)
+        public PropertyValidator<TRow> If(Func<TRow, bool> predicate, Func<TRow, bool> isValid)
         {
             ValidationRule<TRow> method = new ValidationRule<TRow>((x) => this.getter(x));
             method.PreCondition = (current) => predicate(current);
-            method.IsValid = (current) => tocheck(current);
+            method.IsValid = (current) => isValid(current);
             method.ErrorMessage = (current) => Translation.IfError;
-            this.methods.Add(method);
+            this.validationRules.Add(method);
             return this;
         }
 
@@ -251,15 +249,15 @@ namespace StringContentValidator
         /// Add a condition on a custom validation action.
         /// </summary>
         /// <param name="predicate">Condition as a predicate.</param>
-        /// <param name="tocheck">todo if condition is ok.</param>
+        /// <param name="isValid">Delegate to validate the current row.</param>
         /// <returns>Current instance.</returns>
-        public PropertyValidator<TRow> If(Func<TRow, bool> predicate, Func<TRow, dynamic, bool> tocheck)
+        public PropertyValidator<TRow> If(Func<TRow, bool> predicate, Func<TRow, dynamic, bool> isValid)
         {
             ValidationRule<TRow> method = new ValidationRule<TRow>((x) => this.getter(x));
             method.PreCondition = (current) => predicate(current);
-            method.IsValid = (current) => tocheck(current, this.extraObject);
+            method.IsValid = (current) => isValid(current, this.extraObject);
             method.ErrorMessage = (current) => Translation.IfError;
-            this.methods.Add(method);
+            this.validationRules.Add(method);
             return this;
         }
 
@@ -271,27 +269,27 @@ namespace StringContentValidator
         {
             this.ValidationErrors = new List<ValidationError>();
 
-            foreach (var method in this.methods)
+            foreach (var validationRule in this.validationRules)
             {
                 bool result = true;
-                if (method.PreCondition != null)
+                if (validationRule.PreCondition != null)
                 {
                     // used by condition like .If(x => x.Type == "P", action:
-                    result = method.PreCondition(row);
+                    result = validationRule.PreCondition(row);
                 }
 
                 if (result)
                 {
-                    bool ok = method.IsValid(row);
+                    bool ok = validationRule.IsValid(row);
                     if (!ok)
                     {
-                        this.ValidationErrors.Add(ValidationError.Failure(this.fieldName, this.MessageErrorFactory(row, method)));
+                        this.ValidationErrors.Add(ValidationError.Failure(this.fieldName, this.MessageErrorFactory(row, validationRule)));
 
                         // TODO at this stage always break on first error
                         // if (this.StopOnFirstFailure)
-                        // {
+                        //// {
                         break;
-                        // }
+                        //// }
                     }
                 }
             }

@@ -20,11 +20,15 @@ namespace StringContentValidator
         /// Initializes a new instance of the <see cref="ClassValidator{TRow}"/> class.
         /// Private constructor.
         /// </summary>
-        private ClassValidator()
+        protected ClassValidator()
         {
         }
 
-        private ClassValidator(IClassValidatorOptions options)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClassValidator{TRow}"/> class.
+        /// </summary>
+        /// <param name="options">Validation options.</param>
+        protected ClassValidator(IClassValidatorOptions options)
         {
             this.options = options;
         }
@@ -43,12 +47,21 @@ namespace StringContentValidator
         }
 
         /// <summary>
-        /// Create an instance with no option.
+        /// Create an instance with option.
         /// </summary>
         /// <returns>The created instance.</returns>
         public static ClassValidator<TRow> Init()
         {
             return new ClassValidator<TRow>();
+        }
+
+        /// <summary>
+        /// Create an instance with option.
+        /// </summary>
+        /// <returns>The created instance.</returns>
+        public static ClassValidator<dynamic> InitDynamic()
+        {
+            return new ClassValidator<dynamic>();
         }
 
         /// <summary>
@@ -69,6 +82,21 @@ namespace StringContentValidator
         public ClassValidator<TRow> AddProperty(PropertyValidator<TRow> propValidator)
         {
             this.listValidator.Add(propValidator);
+            return this;
+        }
+
+        /// <summary>
+        /// Add a property validator for the given property with validation rules.
+        /// </summary>
+        /// <param name="getterExpression">Expression for the targeted property.</param>
+        /// <param name="validationRules">Delegate to add validation rules. Action may N validation rules.</param>
+        /// <param name="overrideFieldName">To override field Name. By default uses the name of property.</param>
+        /// <returns>current instance.</returns>
+        public ClassValidator<TRow> For(Expression<Func<TRow, string>> getterExpression, Action<IPropertyValidatorAction<TRow>> validationRules, string overrideFieldName = null)
+        {
+            var prop = PropertyValidator<TRow>.For(getterExpression, overrideFieldName);
+            validationRules(prop);
+            this.listValidator.Add(prop);
             return this;
         }
 
@@ -122,6 +150,11 @@ namespace StringContentValidator
             }
 
             return this;
+        }
+
+        protected void AddPropertyValidator(PropertyValidator<TRow> property)
+        {
+            this.listValidator.Add(property);
         }
     }
 }
