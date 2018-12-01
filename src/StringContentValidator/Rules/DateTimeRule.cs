@@ -4,19 +4,19 @@ using System.Globalization;
 using System.Text;
 using StringContentValidator.Languages;
 
-namespace StringContentValidator.Methods
+namespace StringContentValidator.Rules
 {
     /// <summary>
     /// Encapsulate method to validate conversion to DateTime type.
     /// </summary>
     /// <typeparam name="TRow">type to validate.</typeparam>
-    public class DateTimeMethods<TRow> : ValidationRule<TRow>
+    public class DateTimeRule<TRow> : ValidationRule<TRow>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DateTimeMethods{TRow}"/> class.
+        /// Initializes a new instance of the <see cref="DateTimeRule{TRow}"/> class.
         /// </summary>
         /// <param name="value">delegate to get the value to validate.</param>
-        public DateTimeMethods(Func<TRow, string> value)
+        public DateTimeRule(Func<TRow, string> value)
             : base(value)
         {
         }

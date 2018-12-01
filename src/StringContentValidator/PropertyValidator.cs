@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using StringContentValidator.Languages;
-using StringContentValidator.Methods;
+using StringContentValidator.Rules;
 using StringContentValidator.Utilities;
 
 namespace StringContentValidator
@@ -125,7 +125,7 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> IsNotNull()
         {
-            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            StringRule<TRow> method = new StringRule<TRow>((x) => this.getter(x));
             method.IsNotNull();
             this.validationRules.Add(method);
             return this;
@@ -137,7 +137,7 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> IsNotNullOrEmpty()
         {
-            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            StringRule<TRow> method = new StringRule<TRow>((x) => this.getter(x));
             method.IsNotNullOrEmpty();
             this.validationRules.Add(method);
             return this;
@@ -150,7 +150,7 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> TryParseDecimal(IFormatProvider provider = null)
         {
-            DecimalMethods<TRow> method = new DecimalMethods<TRow>((x) => this.getter(x));
+            DecimalRule<TRow> method = new DecimalRule<TRow>((x) => this.getter(x));
             method.TryParseDecimal(provider);
             this.validationRules.Add(method);
             return this;
@@ -163,7 +163,7 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> TryParseDateTime(string format)
         {
-            DateTimeMethods<TRow> method = new DateTimeMethods<TRow>((x) => this.getter(x));
+            DateTimeRule<TRow> method = new DateTimeRule<TRow>((x) => this.getter(x));
             method.TryParseDateTime(format);
             this.validationRules.Add(method);
             return this;
@@ -177,7 +177,7 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> HasLength(int min, int max)
         {
-            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            StringRule<TRow> method = new StringRule<TRow>((x) => this.getter(x));
             method.HasLength(min, max);
             this.validationRules.Add(method);
             return this;
@@ -190,7 +190,7 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> IsStringValues(string[] values)
         {
-            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            StringRule<TRow> method = new StringRule<TRow>((x) => this.getter(x));
             method.IsStringValues(values);
             this.validationRules.Add(method);
             return this;
@@ -204,7 +204,7 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public PropertyValidator<TRow> TryRegex(string pattern, RegexOptions options = RegexOptions.None)
         {
-            StringMethods<TRow> method = new StringMethods<TRow>((x) => this.getter(x));
+            StringRule<TRow> method = new StringRule<TRow>((x) => this.getter(x));
             method.TryRegex(pattern, options);
             this.validationRules.Add(method);
             return this;

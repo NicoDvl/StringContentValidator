@@ -4,19 +4,19 @@ using System.Globalization;
 using System.Text;
 using StringContentValidator.Languages;
 
-namespace StringContentValidator.Methods
+namespace StringContentValidator.Rules
 {
     /// <summary>
     /// Encapsulate method to validate conversion to decimal type.
     /// </summary>
     /// <typeparam name="TRow">type to validate.</typeparam>
-    public class DecimalMethods<TRow> : ValidationRule<TRow>
+    public class DecimalRule<TRow> : ValidationRule<TRow>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DecimalMethods{TRow}"/> class.
+        /// Initializes a new instance of the <see cref="DecimalRule{TRow}"/> class.
         /// </summary>
         /// <param name="value">delegate to get the value to validate.</param>
-        public DecimalMethods(Func<TRow, string> value)
+        public DecimalRule(Func<TRow, string> value)
             : base(value)
         {
         }

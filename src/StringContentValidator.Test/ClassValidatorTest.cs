@@ -106,7 +106,7 @@ namespace StringContentValidator.Test
                     }
                 );
 
-            Assert.Equal(2, validator.ValidationErrors.Count);
+            Assert.Equal(3, validator.ValidationErrors.Count);
             Assert.Contains("Row 1 ", validator.ValidationErrors[0].ErrorMessage);
             Assert.Contains("Row 2 ", validator.ValidationErrors[1].ErrorMessage);
         }

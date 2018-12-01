@@ -5,19 +5,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 using StringContentValidator.Languages;
 
-namespace StringContentValidator.Methods
+namespace StringContentValidator.Rules
 {
     /// <summary>
     /// Encapsulate method to validate string.
     /// </summary>
     /// <typeparam name="TRow">type to validate.</typeparam>
-    public class StringMethods<TRow> : ValidationRule<TRow>
+    public class StringRule<TRow> : ValidationRule<TRow>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="StringMethods{TRow}"/> class.
+        /// Initializes a new instance of the <see cref="StringRule{TRow}"/> class.
         /// </summary>
         /// <param name="value">delegate to get the value to validate.</param>
-        public StringMethods(Func<TRow, string> value)
+        public StringRule(Func<TRow, string> value)
             : base(value)
         {
         }
