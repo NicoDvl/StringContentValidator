@@ -25,6 +25,7 @@ namespace StringContentValidator
         private Expression getterExpression;
         private dynamic extraObject;
         private bool preserveErrorHeader = true;
+        private bool stopOnFailure = false;
 
         private PropertyValidator()
         {
@@ -34,11 +35,6 @@ namespace StringContentValidator
         /// Gets the list of validation errors.
         /// </summary>
         public List<ValidationError> ValidationErrors { get; private set; } = new List<ValidationError>();
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the validation of the property must stop on first error.
-        /// </summary>
-        public bool StopOnFirstFailure { get; set; } = true;
 
         /// <summary>
         /// Gets a value indicating whether the validation is successfull.
@@ -96,6 +92,17 @@ namespace StringContentValidator
         public PropertyValidator<TRow> SetExtraObject(dynamic extraObject)
         {
             this.extraObject = extraObject;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets a value indicating whether the validation of the property must stop on first error.
+        /// </summary>
+        /// <param name="stopOnFailure">A boolean to set stopOnFailure.</param>
+        /// <returns>Current instance.</returns>
+        public PropertyValidator<TRow> SetStopOnFailure(bool stopOnFailure)
+        {
+            this.stopOnFailure = stopOnFailure;
             return this;
         }
 
@@ -285,11 +292,11 @@ namespace StringContentValidator
                     {
                         this.ValidationErrors.Add(ValidationError.Failure(this.fieldName, this.MessageErrorFactory(row, validationRule)));
 
-                        // TODO at this stage always break on first error
-                        // if (this.StopOnFirstFailure)
-                        //// {
-                        break;
-                        //// }
+                        // stop on failure or not
+                        if (this.stopOnFailure)
+                        {
+                            break;
+                        }
                     }
                 }
             }

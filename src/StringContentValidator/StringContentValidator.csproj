@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>N.Delaval</Authors>
-    <Description>Fluent validation for string content. Ensures that the content read in csv files, excel files ... is valid before loading model objects. Provides maximum feedback for correcting input files.</Description>
+    <Description>Fluent validation for text content. Ensures that the content read from csv files or excel files is valid or provides maximum feedback if validation errors occur.</Description>
     <PackageTags>fluent validation string csv excel</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company />
     <PackageProjectUrl>https://github.com/NicoDvl/StringContentValidator</PackageProjectUrl>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
