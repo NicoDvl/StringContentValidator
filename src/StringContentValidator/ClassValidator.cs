@@ -118,7 +118,7 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public ClassValidator<TRow> ValidateList(IEnumerable<TRow> rows)
         {
-            int index = 0;
+            int index = 1;
 
             foreach (var row in rows)
             {
