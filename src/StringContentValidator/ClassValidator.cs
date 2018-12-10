@@ -58,15 +58,6 @@ namespace StringContentValidator
         /// <summary>
         /// Create an instance with option.
         /// </summary>
-        /// <returns>The created instance.</returns>
-        public static ClassValidator<dynamic> InitDynamic()
-        {
-            return new ClassValidator<dynamic>();
-        }
-
-        /// <summary>
-        /// Create an instance with option.
-        /// </summary>
         /// <param name="options">options.</param>
         /// <returns>The created instance.</returns>
         public static ClassValidator<TRow> Init(IClassValidatorOptions options)
@@ -152,6 +143,10 @@ namespace StringContentValidator
             return this;
         }
 
+        /// <summary>
+        /// Allow inherited classes to add property Validator.
+        /// </summary>
+        /// <param name="property">a property validator.</param>
         protected void AddPropertyValidator(PropertyValidator<TRow> property)
         {
             this.listValidator.Add(property);
