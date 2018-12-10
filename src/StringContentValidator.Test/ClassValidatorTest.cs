@@ -94,21 +94,40 @@ namespace StringContentValidator.Test
         [UseCulture("en")]
         public void ClassValidator_list_with_index()
         {
-            ClassValidator<Row> validator = ClassValidator<Row>
-                .Init(new ClassValidatorOption() { ShowRowIndex = true }) // show index in error list
+            var defaultList = new List<Row>(){
+                new Row() { Key = "mykey", DateTimeValue = "20181201" },
+                new Row() { Key = "mykey", DateTimeValue = "20181301" }, // error
+                new Row() { Key = "mykey", DateTimeValue = null } // error
+            };
+
+            ClassValidator<Row> CreateValidator(ClassValidatorOption option, List<Row> list)
+            {
+                return ClassValidator<Row>
+                .Init(option) // show index in error list. default index
                 .For(x => x.Key, p => p.IsNotNull())
                 .For(x => x.DateTimeValue, p => p.IsNotNull().TryParseDateTime("yyyyMMdd"))
-                .ValidateList(
-                    new List<Row>(){
-                        new Row() { Key = "mykey", DateTimeValue = "20181201" },
-                        new Row() { Key = "mykey", DateTimeValue = "20181301" }, // error
-                        new Row() { Key = "mykey", DateTimeValue = null } // error
-                    }
-                );
+                .ValidateList(list);
+            }
+
+            // show index in error list. default index
+            ClassValidator<Row> validator = CreateValidator(
+                new ClassValidatorOption() { ShowRowIndex = true }, 
+                defaultList
+            );
 
             Assert.Equal(3, validator.ValidationErrors.Count);
-            Assert.Contains("Row 1 ", validator.ValidationErrors[0].ErrorMessage);
-            Assert.Contains("Row 2 ", validator.ValidationErrors[1].ErrorMessage);
+            Assert.Contains("Row 2 ", validator.ValidationErrors[0].ErrorMessage);
+            Assert.Contains("Row 3 ", validator.ValidationErrors[1].ErrorMessage);
+
+            // show index in error list. force index
+            ClassValidator<Row> validatorForceIndex = CreateValidator(
+                new ClassValidatorOption() { ShowRowIndex = true, RowIndexStartsAt = 5 },
+                defaultList
+            );
+
+            Assert.Equal(3, validatorForceIndex.ValidationErrors.Count);
+            Assert.Contains("Row 6 ", validatorForceIndex.ValidationErrors[0].ErrorMessage);
+            Assert.Contains("Row 7 ", validatorForceIndex.ValidationErrors[1].ErrorMessage);
         }
     }
 }

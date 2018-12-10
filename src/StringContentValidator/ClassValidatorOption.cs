@@ -13,5 +13,10 @@ namespace StringContentValidator
         /// Gets or sets a value indicating whether Row index must be included in message.
         /// </summary>
         public bool ShowRowIndex { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating row index start. Default 1.
+        /// </summary>
+        public int RowIndexStartsAt { get; set; } = 1;
     }
 }

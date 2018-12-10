@@ -18,14 +18,16 @@ namespace StringContentValidator
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClassValidator{TRow}"/> class.
-        /// Private constructor.
+        /// Protected constructor. Default options.
         /// </summary>
         protected ClassValidator()
         {
+            this.options = new ClassValidatorOption();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClassValidator{TRow}"/> class.
+        /// Protected constructor.
         /// </summary>
         /// <param name="options">Validation options.</param>
         protected ClassValidator(IClassValidatorOptions options)
@@ -47,7 +49,7 @@ namespace StringContentValidator
         }
 
         /// <summary>
-        /// Create an instance with option.
+        /// Create an instance with default options.
         /// </summary>
         /// <returns>The created instance.</returns>
         public static ClassValidator<TRow> Init()
@@ -118,13 +120,13 @@ namespace StringContentValidator
         /// <returns>Current instance.</returns>
         public ClassValidator<TRow> ValidateList(IEnumerable<TRow> rows)
         {
-            int index = 1;
+            int index = this.options.RowIndexStartsAt;
 
             foreach (var row in rows)
             {
                 foreach (var validator in this.listValidator)
                 {
-                    if (this.options != null && this.options.ShowRowIndex)
+                    if (this.options.ShowRowIndex)
                     {
                         validator.SetRowIndex(index);
                     }
