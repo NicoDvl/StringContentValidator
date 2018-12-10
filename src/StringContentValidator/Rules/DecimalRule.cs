@@ -35,7 +35,7 @@ namespace StringContentValidator.Rules
             this.IsValid = (current) =>
             {
                 decimal d;
-                bool ok = decimal.TryParse(this.Value(current), NumberStyles.AllowDecimalPoint, provider, out d);
+                bool ok = decimal.TryParse(this.Value(current), NumberStyles.Any, provider, out d);
                 return ok;
             };
             this.ErrorMessage = (current) => string.Format(Translation.IsDecimalError, this.Value(current));
