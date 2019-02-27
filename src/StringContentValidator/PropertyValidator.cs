@@ -55,7 +55,7 @@ namespace StringContentValidator
             PropertyValidator<TRow> prop = new PropertyValidator<TRow>();
             prop.getter = getterExpression.Compile();
             prop.getterExpression = getterExpression;
-            prop.fieldName = overrideFieldName != null ? overrideFieldName : ExpressionUtiities.PropertyName(getterExpression);
+            prop.fieldName = overrideFieldName ?? ExpressionUtiities.PropertyName(getterExpression);
             return prop;
         }
 

@@ -94,6 +94,22 @@ namespace StringContentValidator
         }
 
         /// <summary>
+        /// Add a property validator for the given property with validation rules only if predicate is true.
+        /// </summary>
+        /// <param name="getterExpression">Expression for the targeted property.</param>
+        /// <param name="ifFunc">Condition as a predicate.</param>
+        /// <param name="validationRules">Delegate to add validation rules. Action may N validation rules.</param>
+        /// <param name="overrideFieldName">To override field Name. By default uses the name of property.</param>
+        /// <returns>current instance.</returns>
+        public ClassValidator<TRow> ForIf(Expression<Func<TRow, string>> getterExpression, Func<TRow, bool> ifFunc, Action<IPropertyValidatorAction<TRow>> validationRules, string overrideFieldName = null)
+        {
+            var prop = PropertyValidator<TRow>.For(getterExpression, overrideFieldName);
+            prop.If(ifFunc, validationRules);
+            this.listValidator.Add(prop);
+            return this;
+        }
+
+        /// <summary>
         /// Validation for one row.
         /// </summary>
         /// <param name="row">Row to validate.</param>
