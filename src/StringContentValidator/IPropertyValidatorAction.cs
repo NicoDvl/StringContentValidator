@@ -41,6 +41,6 @@ namespace StringContentValidator
         /// </summary>
         /// <param name="values">List of values.</param>
         /// <returns>Current instance.</returns>
-        PropertyValidator<TRow> IsStringValues(string[] values);
+        PropertyValidator<TRow> IsStringValues(string[] values, IEqualityComparer<string> comparer = null);
     }
 }

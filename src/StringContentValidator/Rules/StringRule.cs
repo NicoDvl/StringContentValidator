@@ -69,9 +69,9 @@ namespace StringContentValidator.Rules
         /// Check if property value is in list of values.
         /// </summary>
         /// <param name="values">List of values.</param>
-        public void IsStringValues(string[] values)
+        public void IsStringValues(string[] values, IEqualityComparer<string> comparer = null)
         {
-            this.IsValid = (current) => values.Contains(this.Value(current));
+            this.IsValid = (current) => values.Contains(this.Value(current), comparer);
             this.ErrorMessage = (current) => string.Format(Translation.IsStringValuesError, this.Value(current));
         }
 

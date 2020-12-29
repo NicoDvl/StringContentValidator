@@ -188,10 +188,10 @@ namespace StringContentValidator
         /// </summary>
         /// <param name="values">List of values.</param>
         /// <returns>Current instance.</returns>
-        public PropertyValidator<TRow> IsStringValues(string[] values)
+        public PropertyValidator<TRow> IsStringValues(string[] values, IEqualityComparer<string> comparer = null)
         {
             StringRule<TRow> method = new StringRule<TRow>((x) => this.getter(x));
-            method.IsStringValues(values);
+            method.IsStringValues(values, comparer);
             this.validationRules.Add(method);
             return this;
         }
