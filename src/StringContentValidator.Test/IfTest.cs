@@ -1,7 +1,6 @@
 ﻿using StringContentValidator.Test.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace StringContentValidator.Test

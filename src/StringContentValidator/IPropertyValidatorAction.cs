@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace StringContentValidator
 {
@@ -40,6 +39,7 @@ namespace StringContentValidator
         /// Check if property value is in list values.
         /// </summary>
         /// <param name="values">List of values.</param>
+        /// <param name="comparer">An optionnal equality comparer to compare value.</param>
         /// <returns>Current instance.</returns>
         PropertyValidator<TRow> IsStringValues(string[] values, IEqualityComparer<string> comparer = null);
     }

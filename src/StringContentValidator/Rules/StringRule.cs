@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using StringContentValidator.Languages;
 
@@ -47,14 +46,19 @@ namespace StringContentValidator.Rules
         /// <param name="max">maw length.</param>
         public void HasLength(int min, int max)
         {
-            if (min < 0 || max < 0)
+            if (min < 0)
             {
-                throw new ArgumentOutOfRangeException("Min Max", "Min and Max can't be negative.");
+                throw new ArgumentOutOfRangeException(nameof(min), "Min can't be negative.");
+            }
+
+            if (max < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(max), "Max can't be negative.");
             }
 
             if (max < min)
             {
-                throw new ArgumentOutOfRangeException("Min Max", "Max can't be smaller than min.");
+                throw new ArgumentOutOfRangeException(nameof(max), "Max can't be smaller than min.");
             }
 
             this.IsValid = (current) =>
@@ -69,6 +73,7 @@ namespace StringContentValidator.Rules
         /// Check if property value is in list of values.
         /// </summary>
         /// <param name="values">List of values.</param>
+        /// <param name="comparer">An optionnal equality comparer to compare value.</param>
         public void IsStringValues(string[] values, IEqualityComparer<string> comparer = null)
         {
             this.IsValid = (current) => values.Contains(this.Value(current), comparer);
