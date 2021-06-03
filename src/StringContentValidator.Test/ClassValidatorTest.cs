@@ -22,6 +22,17 @@ namespace StringContentValidator.Test
         }
 
         [Fact]
+        public void ClassValidator_customgetter_ok()
+        {
+            ClassValidator<Row> validator = ClassValidator<Row>
+                .Init()
+                .For(x => x.Key, x => x.Key.ToUpper(), p => p.IsNotNullOrEmpty().IsStringValues(new string[] { "MYKEY" }))
+                .Validate(new Row() { Key = "mykey", DateTimeValue = null });
+
+            Assert.Empty(validator.ValidationErrors);
+        }
+
+        [Fact]
         public void ClassValidator_class_sample()
         {
             ClassValidator<Row> validator = ClassValidator<Row>.Init()

@@ -59,6 +59,22 @@ namespace StringContentValidator
         }
 
         /// <summary>
+        /// Creates a property validator for the given property.
+        /// </summary>
+        /// <param name="propertyExpression">Expression for the targeted property.</param>
+        /// <param name="getterExpression">Expression for the getter (if different from property).</param>
+        /// <param name="overrideFieldName">To override field Name. By default uses the name of property.</param>
+        /// <returns>A property validator.</returns>
+        public static PropertyValidator<TRow> For(Expression<Func<TRow, string>> propertyExpression, Expression<Func<TRow, string>> getterExpression, string overrideFieldName = null)
+        {
+            PropertyValidator<TRow> prop = new PropertyValidator<TRow>();
+            prop.getter = getterExpression.Compile();
+            prop.getterExpression = getterExpression;
+            prop.fieldName = overrideFieldName ?? ExpressionUtiities.PropertyName(propertyExpression);
+            return prop;
+        }
+
+        /// <summary>
         /// Creates a property validator for a dynamic property.
         /// </summary>
         /// <param name="getter">The targeted dynamic property.</param>
