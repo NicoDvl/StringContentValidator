@@ -64,7 +64,7 @@ namespace StringContentValidator.Rules
             this.IsValid = (current) =>
             {
                 int length = this.Value(current).Length;
-                return length >= min || length <= max;
+                return length >= min && length <= max;
             };
             this.ErrorMessage = (current) => string.Format(Translation.HasLengthError, min, max);
         }
