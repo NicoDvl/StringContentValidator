@@ -40,5 +40,26 @@ namespace StringContentValidator.Rules
             };
             this.ErrorMessage = (current) => string.Format(Translation.IsDateTimeError, this.Value(current), format);
         }
+
+        /// <summary>
+        /// Check if property is convertible to decimal.
+        /// </summary>
+        /// <param name="format">specified format.</param>
+        /// <param name="provider">culture provider.</param>
+        public void TryParseDateTime(string format, IFormatProvider provider)
+        {
+            if (string.IsNullOrEmpty(format))
+            {
+                throw new ArgumentNullException(nameof(format), "format can't be null or empty.");
+            }
+
+            this.IsValid = (current) =>
+            {
+                DateTime d;
+                bool ok = DateTime.TryParseExact(this.Value(current), format, provider, DateTimeStyles.None, out d);
+                return ok;
+            };
+            this.ErrorMessage = (current) => string.Format(Translation.IsDateTimeError, this.Value(current), format);
+        }
     }
 }

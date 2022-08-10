@@ -185,6 +185,20 @@ namespace StringContentValidator
         }
 
         /// <summary>
+        /// Check if property is convertible to DateTime.
+        /// </summary>
+        /// <param name="format">specified format.</param>
+        /// <param name="provider">culture provider.</param>
+        /// <returns>Current instance.</returns>
+        public PropertyValidator<TRow> TryParseDateTime(string format, IFormatProvider provider)
+        {
+            DateTimeRule<TRow> method = new DateTimeRule<TRow>((x) => this.getter(x));
+            method.TryParseDateTime(format, provider);
+            this.validationRules.Add(method);
+            return this;
+        }
+
+        /// <summary>
         /// Check if property has required length.
         /// </summary>
         /// <param name="min">min length.</param>
